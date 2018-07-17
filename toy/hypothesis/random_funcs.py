@@ -16,12 +16,12 @@ def fibonacci(n: int) -> int:
 def mean_absolute_error(y, y_hat):
     inf_present = np.isinf(y).any() or np.isinf(y_hat).any()
     if inf_present:
-        raise ValueError('inf values present in inputs')
+        raise ValueError("inf values present in inputs")
     abs_error = np.abs(y - y_hat)
     mae = abs_error.mean()
     return mae
 
 
 def error(df):
-    df['error'] = df['y'] - df['y_hat']
+    df["error"] = df["y"] - df["y_hat"]
     return df

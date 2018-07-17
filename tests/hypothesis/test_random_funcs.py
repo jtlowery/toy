@@ -30,12 +30,14 @@ def test_fibonacci(x):
     assert isinstance(fib, int)
 
 
-float_strategy = floats(min_value=1e-10, max_value=1e10, allow_nan=None, allow_infinity=None)
+float_strategy = floats(
+    min_value=1e-10, max_value=1e10, allow_nan=None, allow_infinity=None
+)
 
 
 @given(
     arrays(dtype=np.float64, shape=5, elements=float_strategy),
-    arrays(dtype=np.float64, shape=5, elements=float_strategy)
+    arrays(dtype=np.float64, shape=5, elements=float_strategy),
 )
 def test_mae(y, y_hat):
     if np.isinf(y).any() or np.isinf(y_hat).any():
@@ -53,7 +55,9 @@ def test_mae(y, y_hat):
 
 @composite
 def two_equal_size_series(draw):
-    series_strategy = series(dtype=np.float64, elements=float_strategy, index=range_indexes(min_size=1))
+    series_strategy = series(
+        dtype=np.float64, elements=float_strategy, index=range_indexes(min_size=1)
+    )
     s1 = draw(series_strategy)
     s2 = draw(series_strategy)
     assume(len(s1) == len(s2))
@@ -79,31 +83,42 @@ def test_mae_series(two_series):
 @composite
 def build_error_df(draw):
     numeric_list_strat = lists(
-        elements=one_of(integers(min_value=1e-10, max_value=1e10), floats(min_value=1e-10, max_value=1e10)),
-        min_size=1
+        elements=one_of(
+            integers(min_value=1e-10, max_value=1e10),
+            floats(min_value=1e-10, max_value=1e10),
+        ),
+        min_size=1,
     )
     y = draw(numeric_list_strat)
     y_hat = draw(numeric_list_strat)
     assume(len(y) == len(y_hat))
-    return pd.DataFrame(data={'y': y, 'y_hat': y_hat})
+    return pd.DataFrame(data={"y": y, "y_hat": y_hat})
 
 
 @given(build_error_df())
 def test_error(df):
     df = error(df)
-    assert 'error' in df.columns, 'error column expected'
-    zero_error = df['y'] == df['y_hat']
-    assert (df.loc[zero_error, 'error'] == 0.).all(), 'if y == y_hat, error should be 0'
-    assert (df.loc[~zero_error, 'error'] != 0.).all(), 'if y != y_hat, error should not be 0'
+    assert "error" in df.columns, "error column expected"
+    zero_error = df["y"] == df["y_hat"]
+    assert (df.loc[zero_error, "error"] == 0.).all(), "if y == y_hat, error should be 0"
+    assert (
+        df.loc[~zero_error, "error"] != 0.
+    ).all(), "if y != y_hat, error should not be 0"
 
 
-@given(data_frames(columns=[
-    column(name='y', elements=float_strategy),
-    column(name='y_hat', elements=float_strategy)
-]))
+@given(
+    data_frames(
+        columns=[
+            column(name="y", elements=float_strategy),
+            column(name="y_hat", elements=float_strategy),
+        ]
+    )
+)
 def test_error_using_pd_extra(df):
     df = error(df)
-    assert 'error' in df.columns, 'error column expected'
-    zero_error = df['y'] == df['y_hat']
-    assert (df.loc[zero_error, 'error'] == 0.).all(), 'if y == y_hat, error should be 0'
-    assert (df.loc[~zero_error, 'error'] != 0.).all(), 'if y != y_hat, error should not be 0'
+    assert "error" in df.columns, "error column expected"
+    zero_error = df["y"] == df["y_hat"]
+    assert (df.loc[zero_error, "error"] == 0.).all(), "if y == y_hat, error should be 0"
+    assert (
+        df.loc[~zero_error, "error"] != 0.
+    ).all(), "if y != y_hat, error should not be 0"
