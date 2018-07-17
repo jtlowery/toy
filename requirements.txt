@@ -2,3 +2,5 @@ hypothesis
 pytest
 numpy
 pandas
+black
+pre-commit
